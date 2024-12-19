@@ -1,3 +1,7 @@
+Example template
+
+Hex:
+
 background: {{ background.hex }}
 foreground: {{ foreground.hex }}
 surface0:   {{ surface0.hex }}
@@ -14,3 +18,22 @@ accent3:    {{ accent3.hex }}
 accent4:    {{ accent4.hex }}
 accent5:    {{ accent5.hex }}
 accent6:    {{ accent6.hex }}
+
+RGB:
+
+background: ({{ background.rgb }})
+foreground: ({{ foreground.rgb }})
+surface0:   ({{ surface0.rgb }})
+surface1:   ({{ surface1.rgb }})
+surface2:   ({{ surface2.rgb }})
+text:       ({{ text.rgb }})
+subtext0:   ({{ subtext0.rgb }})
+subtext1:   ({{ subtext1.rgb }})
+primary:    ({{ primary.rgb }})
+accent0:    ({{ accent0.rgb }})
+accent1:    ({{ accent1.rgb }})
+accent2:    ({{ accent2.rgb }})
+accent3:    ({{ accent3.rgb }})
+accent4:    ({{ accent4.rgb }})
+accent5:    ({{ accent5.rgb }})
+accent6:    ({{ accent6.rgb }})

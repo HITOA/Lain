@@ -63,8 +63,13 @@ ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t siz
         ++count;
     }
 
-    primaryHUE /= count;
-    averageChroma /= count;
+    if (count) {
+        primaryHUE /= count;
+        averageChroma /= count;
+    }
+
+    if (averageChroma < 0.01f) //Image is greyscale
+        averageChroma = 0.1f;
 
     float currentHUETarget = primaryHUE;
 

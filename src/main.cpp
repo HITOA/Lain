@@ -156,6 +156,11 @@ void PrintTheme(ThemeRGB& theme) {
     std::cout << std::endl;
 }
 
+void AddColorData(inja::json& data, const std::string& name, RGB color) {
+    data[name]["hex"] = RGB2HexString(color);
+    data[name]["rgb"] = RGB2String(color);
+}
+
 int main(int argc, const char** argv) {
     Options options{};
     if (!GetOptions(argc, argv, options))
@@ -197,24 +202,24 @@ int main(int argc, const char** argv) {
         PrintTheme(theme);
 
     inja::json data;
-    
-    data["background"]["hex"] = RGB2HexString(theme.background);
-    data["foreground"]["hex"] = RGB2HexString(theme.foreground);
-    data["surface0"]["hex"] = RGB2HexString(theme.surface[0]);
-    data["surface1"]["hex"] = RGB2HexString(theme.surface[1]);
-    data["surface2"]["hex"] = RGB2HexString(theme.surface[2]);
-    data["text"]["hex"] = RGB2HexString(theme.text);
-    data["subtext0"]["hex"] = RGB2HexString(theme.subtext[0]);
-    data["subtext1"]["hex"] = RGB2HexString(theme.subtext[1]);
-    data["primary"]["hex"] = RGB2HexString(theme.primary);
-    data["accent0"]["hex"] = RGB2HexString(theme.accents[0]);
-    data["accent1"]["hex"] = RGB2HexString(theme.accents[1]);
-    data["accent2"]["hex"] = RGB2HexString(theme.accents[2]);
-    data["accent3"]["hex"] = RGB2HexString(theme.accents[3]);
-    data["accent4"]["hex"] = RGB2HexString(theme.accents[4]);
-    data["accent5"]["hex"] = RGB2HexString(theme.accents[5]);
-    data["accent6"]["hex"] = RGB2HexString(theme.accents[6]);
-    
+
+    AddColorData(data, "background",    theme.background);
+    AddColorData(data, "foreground",    theme.foreground);
+    AddColorData(data, "surface0",      theme.surface[0]);
+    AddColorData(data, "surface1",      theme.surface[1]);
+    AddColorData(data, "surface2",      theme.surface[2]);
+    AddColorData(data, "text",          theme.text);
+    AddColorData(data, "subtext0",      theme.subtext[0]);
+    AddColorData(data, "subtext1",      theme.subtext[1]);
+    AddColorData(data, "primary",       theme.primary);
+    AddColorData(data, "accent0",       theme.accents[0]);
+    AddColorData(data, "accent1",       theme.accents[1]);
+    AddColorData(data, "accent2",       theme.accents[2]);
+    AddColorData(data, "accent3",       theme.accents[3]);
+    AddColorData(data, "accent4",       theme.accents[4]);
+    AddColorData(data, "accent5",       theme.accents[5]);
+    AddColorData(data, "accent6",       theme.accents[6]);
+
     inja::Environment env;
 
     for (auto& t : options.templates) {

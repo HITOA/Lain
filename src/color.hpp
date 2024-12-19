@@ -34,7 +34,17 @@ inline std::string RGB2HexString(RGB color) {
     unsigned int b = color.b * 255.0f;
     static char result[256];
 
-    snprintf(result, 8, "#%02X%02X%02X", r, g, b);
+    snprintf(result, 256, "#%02X%02X%02X", r, g, b);
+    return result;
+}
+
+inline std::string RGB2String(RGB color) {
+    unsigned int r = color.r * 255.0f;
+    unsigned int g = color.g * 255.0f;
+    unsigned int b = color.b * 255.0f;
+    static char result[256];
+
+    snprintf(result, 256, "%u, %u, %u", r, g, b);
     return result;
 }
 
