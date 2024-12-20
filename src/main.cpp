@@ -45,8 +45,9 @@ bool GetOptions(int argc, const char** argv, Options& options) {
             "\n-t, --template <template file> <output file>: add a template to be rendered. this argument is repeatable." 
             "\n-s, --silent: make the app not print anything in the console except for error."
             "\n--size <size>: specify the size of the intermediate palette. (Default is 32)"
-            "\n--dark: generate a dark theme (set brightness to 17). (Default)"
-            "\n--light: generate a light theme (set brightness to 85)." << std::endl;
+            "\n--dark: generate a dark theme. (Default)"
+            "\n--light: generate a light theme."
+            "\n--luminosity <value>: set theme overall luminosity between 0 and 100." << std::endl;
             return false;
         }
 
@@ -129,7 +130,24 @@ bool GetOptions(int argc, const char** argv, Options& options) {
 
         if (strcmp(argv[idx], "--light") == 0) {
             ++idx;
-            options.themeLuminosity = 0.85;
+            options.themeLuminosity = 0.97;
+            continue;
+        }
+
+        if (strcmp(argv[idx], "--luminosity") == 0) {
+            ++idx;
+            if (idx >= argc) {
+                std::cout << "Missing value for --luminosity." << std::endl;
+                return false;
+            }
+            try {
+                int l = std::stoi(argv[idx]);
+                options.themeLuminosity = (float)std::clamp(l, 0, 100) / 100.0f;
+            } catch (std::exception& e) {
+                std::cout << "Invalid value for --luminosity" << std::endl;
+                return false;
+            }
+            ++idx;
             continue;
         }
 

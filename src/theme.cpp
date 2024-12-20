@@ -2,11 +2,13 @@
 
 #include <cmath>
 #include <vector>
+#include <algorithm>
 
 
 ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t size, float themeLuminosity) {
     Theme<LCh> theme{};
-    float isDarkTheme = themeLuminosity < 0.5 ? 1.0f : -1.1f;
+    float darkThreshold = 0.65f;
+    float isDarkTheme = themeLuminosity < darkThreshold ? 1.0f : -0.5f;
     
     //Base color
 
@@ -17,19 +19,31 @@ ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t siz
     midColor.L = themeLuminosity + 0.05f * isDarkTheme;
     endColor.L = themeLuminosity + 0.30f * isDarkTheme;
 
-    theme.background = startColor;
-    theme.foreground = LerpLCh(startColor, midColor, 0.5f);
-    theme.surface[0] = midColor;
-    theme.surface[1] = LerpLCh(midColor, endColor, 0.33f);
-    theme.surface[2] = LerpLCh(midColor, endColor, 0.66f);
-    theme.surface[3] = endColor;
+    if (themeLuminosity < darkThreshold) {
+        theme.background = startColor;
+        theme.foreground = LerpLCh(startColor, midColor, 0.5f);
+        theme.surface[0] = midColor;
+        theme.surface[1] = LerpLCh(midColor, endColor, 0.33f);
+        theme.surface[2] = LerpLCh(midColor, endColor, 0.66f);
+        theme.surface[3] = endColor;
+    } else {
+        theme.background = startColor;
+        theme.foreground = LerpLCh(startColor, endColor, 0.2f);
+        theme.surface[0] = LerpLCh(startColor, endColor, 0.4f);
+        theme.surface[1] = LerpLCh(startColor, endColor, 0.6f);
+        theme.surface[2] = LerpLCh(startColor, endColor, 0.8f);
+        theme.surface[3] = endColor;
+    }
     
-    if (themeLuminosity < 0.5) {
+    if (themeLuminosity < darkThreshold) {
         theme.background = theme.foreground;
         theme.foreground = startColor;
+    } else {
+        theme.background = theme.surface[0];
+        theme.surface[0] = startColor;
     }
 
-    float textLuminosity = themeLuminosity < 0.5f ? 0.8f : 0.20f;
+    float textLuminosity = themeLuminosity < darkThreshold ? 0.8f : 0.20f;
     float targetMaximumChroma = 0.8f;
 
     //Text & Subtext
@@ -37,13 +51,13 @@ ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t siz
     theme.text = ColorTo<LCh>(GetClosestColorByLuminosity(palette, size, textLuminosity));
     theme.text.L = textLuminosity;
     theme.text.C = theme.text.C > targetMaximumChroma ? targetMaximumChroma : theme.text.C; //Reduce chroma for main text color to be close to white/black for readibility
-    theme.subtext = ColorTo<LCh>(GetClosestColorByLuminosity(palette, size, textLuminosity - 0.07f * isDarkTheme));
-    theme.subtext.L = textLuminosity - 0.07f * isDarkTheme;
+    theme.subtext = ColorTo<LCh>(GetClosestColorByLuminosity(palette, size, textLuminosity - 0.1f * isDarkTheme));
+    theme.subtext.L = textLuminosity - 0.1f * isDarkTheme;
     theme.subtext.C = theme.subtext.C > targetMaximumChroma ? targetMaximumChroma : theme.subtext.C;
 
     //Accents color
 
-    float accentLuminosity = themeLuminosity < 0.5f ? 0.8f : 0.7f;
+    float accentLuminosity = themeLuminosity < darkThreshold ? 0.8f : 0.3f;
     float primaryHUE = 0.0f;
     float averageChroma = 0.0f;
     float count = 0;
@@ -81,7 +95,7 @@ ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t siz
             LCh current = ColorTo<LCh>(palette[i]);
             float currentLuminosityDiff = fabs(current.L - accentLuminosity);
             float currentHUEDiff = fabs(current.h - currentHUETarget);
-            if (currentLuminosityDiff > 0.5f)
+            if (currentLuminosityDiff > 0.3f)
                 continue;
             if (currentHUEDiff > 0.3f)
                 continue;
