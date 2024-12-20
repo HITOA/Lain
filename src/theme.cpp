@@ -8,7 +8,7 @@
 ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t size, float themeLuminosity) {
     Theme<LCh> theme{};
     float darkThreshold = 0.65f;
-    float isDarkTheme = themeLuminosity < darkThreshold ? 1.0f : -0.5f;
+    float isDarkTheme = themeLuminosity < darkThreshold ? 1.0f : -1.0f;
     
     //Base color
 
@@ -28,9 +28,9 @@ ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t siz
         theme.surface[3] = endColor;
     } else {
         theme.background = startColor;
-        theme.foreground = LerpLCh(startColor, endColor, 0.2f);
-        theme.surface[0] = LerpLCh(startColor, endColor, 0.4f);
-        theme.surface[1] = LerpLCh(startColor, endColor, 0.6f);
+        theme.foreground = LerpLCh(startColor, endColor, 0.1f);
+        theme.surface[0] = LerpLCh(startColor, endColor, 0.2f);
+        theme.surface[1] = LerpLCh(startColor, endColor, 0.2f);
         theme.surface[2] = LerpLCh(startColor, endColor, 0.8f);
         theme.surface[3] = endColor;
     }
@@ -43,7 +43,7 @@ ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t siz
         theme.surface[0] = startColor;
     }
 
-    float textLuminosity = themeLuminosity < darkThreshold ? 0.8f : 0.20f;
+    float textLuminosity = themeLuminosity < darkThreshold ? 0.8f : 0.40f;
     float targetMaximumChroma = 0.8f;
 
     //Text & Subtext
@@ -57,7 +57,7 @@ ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t siz
 
     //Accents color
 
-    float accentLuminosity = themeLuminosity < darkThreshold ? 0.8f : 0.3f;
+    float accentLuminosity = themeLuminosity < darkThreshold ? 0.8f : 0.6f;
     float primaryHUE = 0.0f;
     float averageChroma = 0.0f;
     float count = 0;
@@ -68,7 +68,7 @@ ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t siz
     for (uint32_t i = 0; i < size; ++i) {
         LCh current = ColorTo<LCh>(palette[i]);
         float currentLuminosityDiff = fabs(current.L - accentLuminosity);
-        if (currentLuminosityDiff > 0.3f)
+        if (currentLuminosityDiff > themeLuminosity * 0.2f)
             continue;
         if (current.C < targetMinimumChroma)
             continue;

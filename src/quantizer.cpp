@@ -131,7 +131,7 @@ void KMean::Quantize(std::shared_ptr<Image> img, Lab* colors, uint32_t size) {
         points[i].position = img->GetPixelLab(i * d);
     
     std::vector<Cluster> clusters(size);
-    srand(time(0));
+    srand(seed);
 
     for (uint32_t i = 0; i < clusters.size(); ++i) {
         clusters[i].centroid.position = points[rand() % points.size()].position;

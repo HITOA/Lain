@@ -21,6 +21,7 @@ struct Options {
     float themeLuminosity = 0.20;
     bool print = true;
     std::vector<std::pair<std::string, std::string>> templates{};
+    unsigned int seed = 0;
 };
 
 bool FileExists(const char* path) {
@@ -47,7 +48,8 @@ bool GetOptions(int argc, const char** argv, Options& options) {
             "\n--size <size>: specify the size of the intermediate palette. (Default is 32)"
             "\n--dark: generate a dark theme. (Default)"
             "\n--light: generate a light theme."
-            "\n--luminosity <value>: set theme overall luminosity between 0 and 100." << std::endl;
+            "\n--luminosity <value>: set theme overall luminosity between 0 and 100." 
+            "\n--seed <value>: set quantizer seed (this has no effect with median cut)."<< std::endl;
             return false;
         }
 
@@ -124,13 +126,13 @@ bool GetOptions(int argc, const char** argv, Options& options) {
 
         if (strcmp(argv[idx], "--dark") == 0) {
             ++idx;
-            options.themeLuminosity = 0.20;
+            options.themeLuminosity = 0.20f;
             continue;
         }
 
         if (strcmp(argv[idx], "--light") == 0) {
             ++idx;
-            options.themeLuminosity = 0.97;
+            options.themeLuminosity = 0.99f;
             continue;
         }
 
@@ -145,6 +147,22 @@ bool GetOptions(int argc, const char** argv, Options& options) {
                 options.themeLuminosity = (float)std::clamp(l, 0, 100) / 100.0f;
             } catch (std::exception& e) {
                 std::cout << "Invalid value for --luminosity" << std::endl;
+                return false;
+            }
+            ++idx;
+            continue;
+        }
+
+        if (strcmp(argv[idx], "--seed") == 0) {
+            ++idx;
+            if (idx >= argc) {
+                std::cout << "Missing value for --seed." << std::endl;
+                return false;
+            }
+            try {
+                options.seed = std::stoi(argv[idx]);
+            } catch (std::exception& e) {
+                std::cout << "Invalid value for --seed" << std::endl;
                 return false;
             }
             ++idx;
@@ -203,7 +221,11 @@ int main(int argc, const char** argv) {
             quantizer = std::make_shared<MedianCut>();
             break;
         case Options::QuantizationAlgorithm::KMean:
-            quantizer = std::make_shared<KMean>();
+            {
+                auto q = std::make_shared<KMean>();
+                q->SetSeed(options.seed);
+                quantizer = q;
+            }
             break;
         default:
             quantizer = std::make_shared<MedianCut>();

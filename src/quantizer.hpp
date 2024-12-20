@@ -24,4 +24,9 @@ private:
 class KMean : public Quantizer {
 public:
     void Quantize(std::shared_ptr<Image> img, Lab* colors, uint32_t size) override;
+
+    inline void SetSeed(unsigned int seed) { this->seed = seed; }
+
+private:
+    unsigned int seed = 0; 
 };
