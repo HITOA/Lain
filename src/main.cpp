@@ -35,18 +35,18 @@ bool GetOptions(int argc, const char** argv, Options& options) {
         std::cout << "Missing arguments. Use -h if you need to see the list of arguments available." << std::endl;
         return false;
     }
-
+    
     while (idx < argc) {
         if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0) {
             std::cout << 
             "\n-h, --help: show this help message." 
             "\n-i, --input <image>: input image to be used to generate a color palette."
-            "\n-s, --size <size>: specify the size of the intermediate palette. (Default is 32)"
             "\n-q, --quantizer <median-cut/k-mean>: set wich quantizer to use. (Default is median cut)"
             "\n-t, --template <template file> <output file>: add a template to be rendered. this argument is repeatable." 
+            "\n-s, --silent: make the app not print anything in the console except for error."
+            "\n--size <size>: specify the size of the intermediate palette. (Default is 32)"
             "\n--dark: generate a dark theme (set brightness to 17). (Default)"
-            "\n--light: generate a light theme (set brightness to 85)."
-            "\n--no-print: make the app not print anything in the console except for error." << std::endl;
+            "\n--light: generate a light theme (set brightness to 85)." << std::endl;
             return false;
         }
 
@@ -81,7 +81,7 @@ bool GetOptions(int argc, const char** argv, Options& options) {
             continue;
         }
 
-        if (strcmp(argv[idx], "-s") == 0 || strcmp(argv[idx], "--size") == 0) {
+        if (strcmp(argv[idx], "--size") == 0) {
             ++idx;
             if (idx >= argc) {
                 std::cout << "Missing size for -s." << std::endl;
@@ -133,7 +133,7 @@ bool GetOptions(int argc, const char** argv, Options& options) {
             continue;
         }
 
-        if (strcmp(argv[idx], "--no-print") == 0) {
+        if (strcmp(argv[idx], "-s") == 0 || strcmp(argv[idx], "--silent") == 0) {
             ++idx;
             options.print = false;
             continue;
@@ -164,18 +164,18 @@ void AddColorData(inja::json& data, const std::string& name, RGB color) {
 int main(int argc, const char** argv) {
     Options options{};
     if (!GetOptions(argc, argv, options))
-        return 0;
+        return -1;
     
     if (!options.inputFile) {
         std::cout << "Input missing. use -i <image> to specify an input image." << std::endl;
-        return 0;
+        return -1;
     }
 
     std::shared_ptr<Image> img = Image::Open(options.inputFile);
 
     if (!img->GetData()) {
         std::cout << "Failed to open \"" << options.inputFile << "\"." << std::endl;
-        return 0;
+        return -1;
     }
 
     std::shared_ptr<Quantizer> quantizer = nullptr;
@@ -208,9 +208,9 @@ int main(int argc, const char** argv) {
     AddColorData(data, "surface0",      theme.surface[0]);
     AddColorData(data, "surface1",      theme.surface[1]);
     AddColorData(data, "surface2",      theme.surface[2]);
+    AddColorData(data, "surface3",      theme.surface[3]);
     AddColorData(data, "text",          theme.text);
-    AddColorData(data, "subtext0",      theme.subtext[0]);
-    AddColorData(data, "subtext1",      theme.subtext[1]);
+    AddColorData(data, "subtext",       theme.subtext);
     AddColorData(data, "primary",       theme.primary);
     AddColorData(data, "accent0",       theme.accents[0]);
     AddColorData(data, "accent1",       theme.accents[1]);

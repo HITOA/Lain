@@ -9,9 +9,9 @@ template<typename ColorT = RGB>
 struct Theme {
     ColorT background; //Background foreground and surfaces should share a similare tint and temperature and should be close together in brightness
     ColorT foreground;
-    ColorT surface[3];
+    ColorT surface[4];
     ColorT text; //Almost alwayse ~black or ~white to contrast with background/foreground and surfaces
-    ColorT subtext[2]; //Similar brightness than text but have more chroma
+    ColorT subtext; //Less bright than text
     ColorT primary; //The first and main accent color
     ColorT accents[7]; //This should cover a big part of the HUE wheel while still respecting the image tint and temperature
 };
@@ -26,9 +26,9 @@ inline Theme<T> ThemeTo(Theme<U> theme) {
     newTheme.surface[0] = ColorTo<T>(theme.surface[0]);
     newTheme.surface[1] = ColorTo<T>(theme.surface[1]);
     newTheme.surface[2] = ColorTo<T>(theme.surface[2]);
+    newTheme.surface[3] = ColorTo<T>(theme.surface[3]);
     newTheme.text       = ColorTo<T>(theme.text);
-    newTheme.subtext[0] = ColorTo<T>(theme.subtext[0]);
-    newTheme.subtext[1] = ColorTo<T>(theme.subtext[1]);
+    newTheme.subtext = ColorTo<T>(theme.subtext);
     newTheme.primary    = ColorTo<T>(theme.primary);
     newTheme.accents[0] = ColorTo<T>(theme.accents[0]);
     newTheme.accents[1] = ColorTo<T>(theme.accents[1]);
