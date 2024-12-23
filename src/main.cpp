@@ -192,9 +192,16 @@ void PrintTheme(ThemeRGB& theme) {
     std::cout << std::endl;
 }
 
-void AddColorData(inja::json& data, const std::string& name, RGB color) {
-    data[name]["hex"] = RGB2HexString(color);
-    data[name]["rgb"] = RGB2String(color);
+void AddColorData(inja::json& data, RGB color) {
+    data["hex"] = RGB2HexString(color);
+    data["rgb"] = RGB2String(color);
+    data["L"] = ColorTo<LCh>(color).L;
+    data["C"] = ColorTo<LCh>(color).C;
+    data["hue"] = ColorTo<LCh>(color).h;
+}
+
+void AddNamedColorData(inja::json& data, const std::string& name, RGB color) {
+    AddColorData(data[name], color);
 }
 
 int main(int argc, const char** argv) {
@@ -243,22 +250,22 @@ int main(int argc, const char** argv) {
 
     inja::json data;
 
-    AddColorData(data, "background",    theme.background);
-    AddColorData(data, "foreground",    theme.foreground);
-    AddColorData(data, "surface0",      theme.surface[0]);
-    AddColorData(data, "surface1",      theme.surface[1]);
-    AddColorData(data, "surface2",      theme.surface[2]);
-    AddColorData(data, "surface3",      theme.surface[3]);
-    AddColorData(data, "text",          theme.text);
-    AddColorData(data, "subtext",       theme.subtext);
-    AddColorData(data, "primary",       theme.primary);
-    AddColorData(data, "accent0",       theme.accents[0]);
-    AddColorData(data, "accent1",       theme.accents[1]);
-    AddColorData(data, "accent2",       theme.accents[2]);
-    AddColorData(data, "accent3",       theme.accents[3]);
-    AddColorData(data, "accent4",       theme.accents[4]);
-    AddColorData(data, "accent5",       theme.accents[5]);
-    AddColorData(data, "accent6",       theme.accents[6]);
+    AddNamedColorData(data, "background",    theme.background);
+    AddNamedColorData(data, "foreground",    theme.foreground);
+    AddNamedColorData(data, "surface0",      theme.surface[0]);
+    AddNamedColorData(data, "surface1",      theme.surface[1]);
+    AddNamedColorData(data, "surface2",      theme.surface[2]);
+    AddNamedColorData(data, "surface3",      theme.surface[3]);
+    AddNamedColorData(data, "text",          theme.text);
+    AddNamedColorData(data, "subtext",       theme.subtext);
+    AddNamedColorData(data, "primary",       theme.primary);
+    AddNamedColorData(data, "accent0",       theme.accents[0]);
+    AddNamedColorData(data, "accent1",       theme.accents[1]);
+    AddNamedColorData(data, "accent2",       theme.accents[2]);
+    AddNamedColorData(data, "accent3",       theme.accents[3]);
+    AddNamedColorData(data, "accent4",       theme.accents[4]);
+    AddNamedColorData(data, "accent5",       theme.accents[5]);
+    AddNamedColorData(data, "accent6",       theme.accents[6]);
 
     data["averageAccentLuminosity"] = theme.averageAccentLuminosity;
     data["averageAccentChroma"] = theme.averageAccentChroma;
@@ -287,8 +294,7 @@ int main(int argc, const char** argv) {
         }
 
         inja::json currentPickedColorData;
-        currentPickedColorData["hex"] = RGB2HexString(currentPickedColor);
-        currentPickedColorData["rgb"] = RGB2String(currentPickedColor);
+        AddColorData(currentPickedColorData, currentPickedColor);
 
         return currentPickedColorData;
     });
@@ -306,8 +312,7 @@ int main(int argc, const char** argv) {
         });
 
         inja::json colorData;
-        colorData["hex"] = RGB2HexString(color);
-        colorData["rgb"] = RGB2String(color);
+        AddColorData(colorData, color);
 
         return colorData;
     });
