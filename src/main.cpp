@@ -197,7 +197,7 @@ void AddColorData(inja::json& data, RGB color) {
     data["rgb"] = RGB2String(color);
     data["L"] = ColorTo<LCh>(color).L;
     data["C"] = ColorTo<LCh>(color).C;
-    data["hue"] = ColorTo<LCh>(color).h;
+    data["hue"] = ColorTo<LCh>(color).h * (180.0f / M_PI);
 }
 
 void AddNamedColorData(inja::json& data, const std::string& name, RGB color) {
