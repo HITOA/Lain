@@ -4,7 +4,7 @@
 #include <vector>
 #include <algorithm>
 
-
+//Have to clean this function this is pretty bad
 ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t size, float themeLuminosity) {
     Theme<LCh> theme{};
     float darkThreshold = 0.65f;
@@ -62,23 +62,28 @@ ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t siz
     float averageChroma = 0.0f;
     float count = 0;
     float targetMinimumChroma = 0.04f;
+    float accA = 0.0f;
+    float accB = 0.0f;
 
-    std::vector<LCh> accentCandidat{};
-
+    std::vector<LCh> accentCandidat( 9 );
+    
     for (uint32_t i = 0; i < size; ++i) {
         LCh current = ColorTo<LCh>(palette[i]);
-        float currentLuminosityDiff = fabs(current.L - accentLuminosity);
-        if (currentLuminosityDiff > themeLuminosity * 0.2f)
+        if (current.L < 0.1f || current.L > 0.98f)
             continue;
         if (current.C < targetMinimumChroma)
             continue;
-        primaryHUE += current.h;
+        accA += palette[i].a;
+        accB += palette[i].b;
         averageChroma += current.C;
         ++count;
     }
 
     if (count) {
-        primaryHUE /= count;
+        accA /= count;
+        accB /= count;
+        primaryHUE = atan2f(accB, accA);
+        std::cout << primaryHUE << std::endl;
         averageChroma /= count;
     }
 
@@ -86,6 +91,9 @@ ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t siz
         averageChroma = 0.1f;
 
     float currentHUETarget = primaryHUE;
+
+    bool foundPrimary = false;
+    int k = 1;
 
     for (uint32_t j = 0; j < 8; ++j) {
         LCh currentBest{};
@@ -108,32 +116,45 @@ ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t siz
             }
         }
         if (distance < 100.0f)
-            accentCandidat.push_back(currentBest);
+            if (!foundPrimary) {
+                accentCandidat[0] = currentBest;
+                foundPrimary = true;
+            } else {
+                accentCandidat[k] = currentBest;
+                ++k;
+            }
         else {
-            accentCandidat.push_back(LCh{
+            accentCandidat[k] = LCh{
                 accentLuminosity,
                 averageChroma,
                 currentHUETarget
-            });
+            };
+            ++k;
         }
 
         currentHUETarget = fmod(currentHUETarget + M_PI * 2 / 8, 2 * M_PI);
     }
 
     if (accentCandidat.size() >= 1) {
-        theme.primary = accentCandidat[0];
-        theme.primary.C = averageChroma;
-        theme.primary.L = accentLuminosity;
+        if (foundPrimary) {
+            theme.primary = accentCandidat[0];
+            theme.primary.L = std::lerp(accentLuminosity, theme.primary.L, 0.5f);
+        } else {
+            theme.primary = accentCandidat[8];
+            theme.primary.C = averageChroma;
+            theme.primary.L = accentLuminosity;
+        }
     }
     else
         theme.primary = LCh{ accentLuminosity, averageChroma, primaryHUE };
 
-    for (uint32_t i = 1; i < accentCandidat.size(); ++i) {
-        if (i >= 8)
-            break;
+    for (uint32_t i = 1; i < 8; ++i) {
         theme.accents[i - 1] = accentCandidat[i];
-        //theme.accents[i - 1].L = accentLuminosity;
+        theme.accents[i - 1].L = std::lerp(accentLuminosity, theme.accents[i - 1].L, 0.5f);;
     }
+
+    theme.averageAccentChroma = averageChroma;
+    theme.averageAccentLuminosity = accentLuminosity;
 
     return ThemeTo<RGB>(theme);
 }

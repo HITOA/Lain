@@ -7,7 +7,7 @@ foreground: {{ foreground.hex }}
 surface0:   {{ surface0.hex }}
 surface1:   {{ surface1.hex }}
 surface2:   {{ surface2.hex }}
-surface2:   {{ surface3.hex }}
+surface3:   {{ surface3.hex }}
 text:       {{ text.hex }}
 subtext:    {{ subtext.hex }}
 primary:    {{ primary.hex }}
@@ -18,7 +18,11 @@ accent3:    {{ accent3.hex }}
 accent4:    {{ accent4.hex }}
 accent5:    {{ accent5.hex }}
 accent6:    {{ accent6.hex }}
-https://github.com/danth/stylix
+
+best matching red:              {{ closestHUE(30).hex }}
+generated matching red:         {{ makeColorLCh(0.6, averageAccentChroma * 1.5, 30).hex }}
+generated red:                  {{ makeColorLCh(0.6, 0.2, 30).hex }}
+
 RGB:
 
 background: ({{ background.rgb }})
@@ -26,7 +30,7 @@ foreground: ({{ foreground.rgb }})
 surface0:   ({{ surface0.rgb }})
 surface1:   ({{ surface1.rgb }})
 surface2:   ({{ surface2.rgb }})
-surface2:   ({{ surface3.rgb }})
+surface3:   ({{ surface3.rgb }})
 text:       ({{ text.rgb }})
 subtext:    ({{ subtext.rgb }})
 primary:    ({{ primary.rgb }})

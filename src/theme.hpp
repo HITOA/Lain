@@ -14,6 +14,8 @@ struct Theme {
     ColorT subtext; //Less bright than text
     ColorT primary; //The first and main accent color
     ColorT accents[7]; //This should cover a big part of the HUE wheel while still respecting the image tint and temperature
+    float averageAccentChroma = 0.0f;
+    float averageAccentLuminosity = 0.0f;
 };
 
 typedef Theme<RGB> ThemeRGB;
@@ -37,6 +39,8 @@ inline Theme<T> ThemeTo(Theme<U> theme) {
     newTheme.accents[4] = ColorTo<T>(theme.accents[4]);
     newTheme.accents[5] = ColorTo<T>(theme.accents[5]);
     newTheme.accents[6] = ColorTo<T>(theme.accents[6]);
+    newTheme.averageAccentChroma = theme.averageAccentChroma;
+    newTheme.averageAccentLuminosity = theme.averageAccentLuminosity;
     return newTheme;
 }
 

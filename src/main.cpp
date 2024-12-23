@@ -260,7 +260,57 @@ int main(int argc, const char** argv) {
     AddColorData(data, "accent5",       theme.accents[5]);
     AddColorData(data, "accent6",       theme.accents[6]);
 
+    data["averageAccentLuminosity"] = theme.averageAccentLuminosity;
+    data["averageAccentChroma"] = theme.averageAccentChroma;
+
     inja::Environment env;
+
+    env.add_callback("closestHUE", 1, [&](inja::Arguments& args) {
+        int hueDeg = args.at(0)->get<int>();
+        float hueRad = (float)hueDeg * (M_PI / 180.0f);
+        float a = cosf(hueRad);
+        float b = sinf(hueRad);
+        float smallestD = 10000.0f;
+        RGB currentPickedColor{};
+
+        RGB* colors = (RGB*)&theme.primary;
+        for (uint32_t i = 0; i < 8; ++i) {
+            Lab current = ColorTo<Lab>(colors[i]);
+            float m = sqrtf(current.a * current.a + current.b * current.b);
+            float currentNormalizedA = current.a / m;
+            float currentNormalizedB = current.b / m;
+            float d = sqrtf((currentNormalizedA - a) * (currentNormalizedA - a) + (currentNormalizedB - b) * (currentNormalizedB - b));
+            if (d < smallestD) {
+                smallestD = d;
+                currentPickedColor = colors[i];
+            }
+        }
+
+        inja::json currentPickedColorData;
+        currentPickedColorData["hex"] = RGB2HexString(currentPickedColor);
+        currentPickedColorData["rgb"] = RGB2String(currentPickedColor);
+
+        return currentPickedColorData;
+    });
+
+    env.add_callback("makeColorLCh", 3, [&](inja::Arguments& args) {
+        float L = args.at(0)->get<float>();
+        float C = args.at(1)->get<float>();
+        int hueDeg = args.at(2)->get<int>();
+        float hueRad = (float)hueDeg * (M_PI / 180.0f);
+        
+        RGB color = ColorTo<RGB>(LCh{
+            L,
+            C,
+            hueRad
+        });
+
+        inja::json colorData;
+        colorData["hex"] = RGB2HexString(color);
+        colorData["rgb"] = RGB2String(color);
+
+        return colorData;
+    });
 
     for (auto& t : options.templates) {
         env.write(t.first, data, t.second);
