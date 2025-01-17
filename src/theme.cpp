@@ -83,7 +83,6 @@ ThemeRGB ThemeMaker::Make(std::shared_ptr<Image> img, Lab* palette, uint32_t siz
         accA /= count;
         accB /= count;
         primaryHUE = atan2f(accB, accA);
-        std::cout << primaryHUE << std::endl;
         averageChroma /= count;
     }
 
